@@ -17,6 +17,13 @@ pip install -r requirements.txt
 python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.9/index.html
 python setup.py build develop
 ```
+After setting up the environment, the pipeline requires ***trained weights*** for neural networks to work properly. Put the weight files in ***./Models*** and ***configurate model paths*** when calling the pipeline!
+
+- ### Trained Weights
+
+All in one .7z package. Put these files extracted inside ***./Models*** .
+
+**Google Drive**: [All In One](https://drive.google.com/file/d/153le_wEwPnzm8G566AWmDaC5aSmjabQR/view?usp=sharing) (1.23 G)
 
 - ### Run on Maps
  <details>
