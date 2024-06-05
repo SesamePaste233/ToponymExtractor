@@ -34,6 +34,12 @@ All in one .7z package. Put these files extracted inside ***./Models*** .
  
  cfg = {
      'img_path': 'path/to/map.jpg',
+
+     # Model paths (default paths)
+     'deepsolo_config_path': 'Models/config_96voc.yaml',
+     'deepsolo_model_path': 'Models/finetune_v2/model.pth',
+     
+     'grouper_model_path': 'Models/grouper_model_v1_epoch2.pth',
  }
  
  extractor = ToponymExtractor(cfg)
