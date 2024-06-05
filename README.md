@@ -4,7 +4,7 @@
 ## Usage
 - ### installation
 
-```console
+```
 git clone https://github.com/SesamePaste233/ToponymExtractor.git ToponymExtractor
 cd ToponymExtractor
 conda create -n toponymics python=3.8 -y
@@ -17,7 +17,7 @@ python setup.py build develop
 
 - ### Run on Maps
 
-* Simple Start
+***Simple Start***
 ```python
 from pipeline import ToponymExtractor
 
@@ -30,7 +30,7 @@ extractor = ToponymExtractor(cfg)
 toponyms = extractor.run()
 ```
 
-* All Configs
+***All Configs***
 ```python
 default_config = {
     # INPUT
