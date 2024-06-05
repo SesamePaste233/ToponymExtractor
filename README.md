@@ -15,6 +15,7 @@ conda activate toponymics
 pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.9/index.html
+cd WordSpotter
 python setup.py build develop
 ```
 After setting up the environment, the pipeline requires ***trained weights*** for neural networks in order to work properly. Put the weight files in ***./Models*** and ***configurate model paths*** when calling the pipeline!

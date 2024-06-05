@@ -13,7 +13,7 @@ assert torch_ver >= [1, 3], "Requires PyTorch >= 1.3"
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "WordSpotter", "adet", "layers", "csrc")
+    extensions_dir = os.path.join(this_dir, "adet", "layers", "csrc")
 
     main_source = os.path.join(extensions_dir, "vision.cpp")
     sources = glob.glob(os.path.join(extensions_dir, "**", "*.cpp"))
