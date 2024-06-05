@@ -2,7 +2,7 @@
  Automized toponym extraction pipeline for historical maps. 
 
 ## Usage
-- installation
+- ### installation
 
 ```console
 git clone https://github.com/SesamePaste233/ToponymExtractor.git ToponymExtractor
@@ -15,7 +15,7 @@ python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wh
 python setup.py build develop
 ```
 
-- Run on Maps
+- ### Run on Maps
 
 * Simple Start
 ```python
