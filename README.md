@@ -68,3 +68,9 @@ python setup.py build develop
  ```
  
  </details>
+ 
+## Credits
+ - DeepSolo for word spotting:
+   - Paper: [DeepSolo: Let Transformer Decoder with Explicit Points Solo for Text Spotting](https://arxiv.org/abs/2211.10772)
+   - Repo: https://github.com/ViTAE-Transformer/DeepSolo
+   
