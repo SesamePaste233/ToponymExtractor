@@ -34,7 +34,7 @@ All in one .7z package. Put the files extracted inside ***./Models*** .
  from pipeline import ToponymExtractor
  
  cfg = {
-     'img_path': 'path/to/map.jpg',
+     'img_path': 'path/to/map_file',
 
      # Model paths (default paths)
      'deepsolo_config_path': 'Models/config_96voc.yaml',
@@ -58,25 +58,33 @@ All in one .7z package. Put the files extracted inside ***./Models*** .
  default_config = {
      # INPUT
      'img_path': None, # Overwrite this
- 
+
      'task_name': None, # Overwrite this if needed
- 
+
      'output_dir': 'Results/', # Overwrite this if needed
- 
+
+     # SETTINGS (default values work well for most cases)
+     'pyramid_scan_num_layers': 1, # Significantly slows down detection speed
+     'pyramid_min_patch_resolution': 384, # Lower this value for maps with smaller text
+     'pyramid_max_patch_resolution': 2048, # Model only run on min_patch_resolution if pyramid_scan_num_layers = 1
+
+     'word_spotting_score_threshold': 0.4,
+     'word_spotting_image_batch_size': 8, # For 8G VRAM. Lower this value if CUDA OOM error occurs, increase it if you have a powerful GPU
+
      # Save intermediate results
      'save_stacked_detection': True,
      'save_flattened_detection': True,
      'save_grouper_graph': True,
      'save_toponym_detection': True,
- 
+
      'save_visualization_images': True,
- 
+
      # Model paths
      'deepsolo_config_path': 'Models/config_96voc.yaml',
      'deepsolo_model_path': 'Models/finetune_v2/model.pth',
      
      'grouper_model_path': 'Models/grouper_model_v1_epoch2.pth',
- 
+
      # Optional
      'generate_style_embeddings': False,
      'use_style_embeddings_in_grouping': False,
