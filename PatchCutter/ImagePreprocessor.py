@@ -54,7 +54,7 @@ class ImagePreprocessor:
             min_patches_m = 3
 
         # Calculate the number of patches for each layer
-        patches_m = np.linspace(min_patches_m, max_patches_m, self.num_layers, dtype = int)
+        patches_m = np.linspace(max_patches_m, min_patches_m, self.num_layers, dtype = int)[::-1]
         print("Cropping patches:", patches_m)
         # Crop the image into patches
         for i, m in enumerate(patches_m):

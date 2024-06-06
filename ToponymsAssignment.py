@@ -73,12 +73,22 @@ def minimize_observation_error_sorting(observations, n):
             if pairwise_matrix[i][j] > 0:
                 G.add_edge(i, j, weight=pairwise_matrix[i][j])
 
+    len_edges = len(G.edges)
     # Attempt topological sorting
-    try:
-        order = list(nx.topological_sort(G))
-    except nx.NetworkXUnfeasible:
-        # Graph has cycles, use a heuristic to break cycles
-        order = list(nx.topological_sort(nx.DiGraph(G)))
+    for _ in range(len_edges):
+        try:
+            order = list(nx.topological_sort(G))
+            break
+        except nx.NetworkXUnfeasible:
+            cycle = nx.find_cycle(G)
+            if not cycle:
+                raise Exception("No cycle found, but NetworkXUnfeasible was raised.")
+
+            # Find the edge with the least weight in the cycle
+            min_weight_edge = min(cycle, key=lambda edge: G.edges[edge]['weight'])
+            
+            # Remove the edge with the least weight
+            G.remove_edge(*min_weight_edge)
 
     return order
 

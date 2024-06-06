@@ -22,6 +22,14 @@ def get_default_config():
 
         'output_dir': 'Results/', # Overwrite this if needed
 
+        # SETTINGS (default values work well for most cases)
+        'pyramid_scan_num_layers': 1, # Significantly slows down detection speed
+        'pyramid_min_patch_resolution': 384, # Lower this value for maps with smaller text
+        'pyramid_max_patch_resolution': 2048, # Model only run on min_patch_resolution if pyramid_scan_num_layers = 1
+
+        'word_spotting_score_threshold': 0.4,
+        'word_spotting_image_batch_size': 8, # For 8G VRAM. Lower this value if CUDA OOM error occurs, increase it if you have a powerful GPU
+
         # Save intermediate results
         'save_stacked_detection': True,
         'save_flattened_detection': True,
@@ -73,6 +81,13 @@ class ToponymExtractor:
         self.use_style_embeddings_in_grouper = config.get('use_style_embeddings_in_grouping', default_config['use_style_embeddings_in_grouping'])
         self.deepfont_encoder_path = config.get('deepfont_encoder_path', default_config['deepfont_encoder_path'])
 
+        self.pyramid_scan_num_layers = config.get('pyramid_scan_num_layers', default_config['pyramid_scan_num_layers'])
+        self.pyramid_min_patch_resolution = config.get('pyramid_min_patch_resolution', default_config['pyramid_min_patch_resolution'])
+        self.pyramid_max_patch_resolution = config.get('pyramid_max_patch_resolution', default_config['pyramid_max_patch_resolution'])
+
+        self.word_spotting_score_threshold = config.get('word_spotting_score_threshold', default_config['word_spotting_score_threshold'])
+        self.word_spotting_image_batch_size = config.get('word_spotting_image_batch_size', default_config['word_spotting_image_batch_size'])
+
         self._validate_paths()
 
         if self.task_name is None:
@@ -121,9 +136,19 @@ class ToponymExtractor:
             raise ValueError(f'deepfont_encoder_path {self.deepfont_encoder_path} does not exist')
 
     def word_spotting(self):
-        self.spotter = DeepSoloWrapper(self.model_cfg, self.model_weights, score_threshold=0.4)
+        self.spotter = DeepSoloWrapper(self.model_cfg, self.model_weights, score_threshold=self.word_spotting_score_threshold)
 
-        self.word_spotting_results = pyramid_scan(self.img_path, self.stacked_detection_path, self.spotter, num_layers = 1, save_visualization=self.save_visualization_images, save_results=self.save_stack_detection)
+        self.word_spotting_results = pyramid_scan(
+            self.img_path, 
+            self.stacked_detection_path, 
+            self.spotter, 
+            num_layers = self.pyramid_scan_num_layers, 
+            min_patch_resolution=self.pyramid_min_patch_resolution,
+            max_patch_resolution=self.pyramid_max_patch_resolution,
+            spotting_batch_size=self.word_spotting_image_batch_size,
+            save_visualization=self.save_visualization_images, 
+            save_results=self.save_stack_detection
+        )
 
         print(f'Word spotting done. Found {len(self.word_spotting_results)} raw word detections.')
 
@@ -187,10 +212,39 @@ class ToponymExtractor:
         return self.toponyms
     
 if __name__ == '__main__':
-    cfg = {
-        'img_path': 'Input/paris2.jpg',
-    }
+    if False:
+        cfg = {
+            'img_path': 'Input/paris2.jpg',
+            # Save intermediate results
+            'save_stacked_detection': False,
+            'save_flattened_detection': True,
+            'save_grouper_graph': True,
+            'save_toponym_detection': True,
 
-    extractor = ToponymExtractor(cfg)
+            'save_visualization_images': True,
+        }
 
-    toponyms = extractor.run()
+        extractor = ToponymExtractor(cfg)
+
+        toponyms = extractor.run()
+
+    if True:
+        # Scan all images in Test1 folder
+        import glob
+        img_paths = glob.glob('Test1/*')[15:]
+
+        for img_path in img_paths:
+            cfg = {
+                'img_path': img_path,
+                # Save intermediate results
+                'save_stacked_detection': False,
+                'save_flattened_detection': True,
+                'save_grouper_graph': True,
+                'save_toponym_detection': True,
+
+                'save_visualization_images': True,
+            }
+
+            extractor = ToponymExtractor(cfg)
+
+            toponyms = extractor.run()
