@@ -1,5 +1,5 @@
 # ToponymExtractor
- Automized toponym extraction pipeline for historical maps. 
+ Automized toponym extraction pipeline for historical maps. This is the code repository for project "**Automated Toponym Extraction Pipeline for Historical Maps**" under Digital Humanities Lab, EPFL.
 
 ## Example Showcase
 ![toponym_extractor](/Imgs/toponym_extractor.jpg "illustration")
@@ -117,4 +117,4 @@ All in one .7z package. Put the files extracted inside ***./Models*** .
  - DeepFont for style recognition:
    - Paper: [DeepFont: Identify Your Font from An Image](https://arxiv.org/abs/1507.03196)
 
-   
+
