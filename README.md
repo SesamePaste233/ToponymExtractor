@@ -1,7 +1,7 @@
 # ToponymExtractor
  Automized toponym extraction pipeline for historical maps. 
 
-## Illustration
+## Example Showcase
 ![toponym_extractor](/Imgs/toponym_extractor.jpg "illustration")
 
 ## Usage
