@@ -114,4 +114,7 @@ All in one .7z package. Put the files extracted inside ***./Models*** .
  - DeepSolo for word spotting:
    - Paper: [DeepSolo: Let Transformer Decoder with Explicit Points Solo for Text Spotting](https://arxiv.org/abs/2211.10772)
    - Repo: https://github.com/ViTAE-Transformer/DeepSolo
+ - DeepFont for style recognition:
+   - Paper: [DeepFont: Identify Your Font from An Image](https://arxiv.org/abs/1507.03196)
+
    
