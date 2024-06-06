@@ -4,6 +4,22 @@
 ## Example Showcase
 ![toponym_extractor](/Imgs/toponym_extractor.jpg "illustration")
 
+## Evaluation
+
+ - ### Speed Benchmark
+   - Config: Default Config
+   - GPU: NVIDIA GeForce RTX 3070 Laptop GPU (8.0 GB VRAM, single GPU)
+   - CPU: AMD Ryzen 7 5800H with Radeon Graphics (16 GB RAM)
+
+| Resolution      | Toponyms | Word Spotting (sec) | Flattening (sec) | Toponym Assignment (sec) | Total (sec) | Total (mins) |
+|-----------------|----------|---------------------|------------------|--------------------------|-------------|--------------|
+| ~7.4k * 6.2k    | ~0.3k    | 33                  | 45               | 32                       | 120         | ~2           |
+| ~6k * 7k        | ~3k      | 30                  | 723              | 1142                     | 1932        | ~32          |
+| ~10k * 7k       | ~3k      | 128                 | 765              | 1201                     | 2131        | ~36          |
+
+	
+
+
 ## Usage
 - ### Installation
 
