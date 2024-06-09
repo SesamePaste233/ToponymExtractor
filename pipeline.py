@@ -9,6 +9,7 @@ from ToponymsAssignment import group_toponyms, toponym_from_graph_strong_compone
 
 import os
 from PIL import Image
+import time
 
 from Utils import result_reader as rr
 from Utils.visualizer import PolygonVisualizer
@@ -27,7 +28,7 @@ def get_default_config():
         'pyramid_min_patch_resolution': 384, # Lower this value for maps with smaller text
         'pyramid_max_patch_resolution': 2048, # Model only run on min_patch_resolution if pyramid_scan_num_layers = 1
 
-        'word_spotting_score_threshold': 0.4,
+        'word_spotting_score_threshold': 0.6, # 0 to 1, lower this value if some words are missed
         'word_spotting_image_batch_size': 8, # For 8G VRAM. Lower this value if CUDA OOM error occurs, increase it if you have a powerful GPU
 
         # Save intermediate results
@@ -36,7 +37,7 @@ def get_default_config():
         'save_grouper_graph': True,
         'save_toponym_detection': True,
 
-        'save_visualization_images': True,
+        'save_visualization_images': False,
 
         # Model paths
         'deepsolo_config_path': 'Models/config_96voc.yaml',
@@ -197,24 +198,42 @@ class ToponymExtractor:
 
         print(f'Toponym assignment done. Found {len(self.toponyms)} toponyms.')
 
-    def run(self):
+    def run(self, print_time=True):
         print(f'\nRunning pipeline for task: \'{self.task_name}\'.')
 
+        start_time = time.time()
+
         self.word_spotting()
+        step1_time = time.time()
+        if print_time:
+            print(f'Word spotting time: {step1_time - start_time:.2f} seconds')
 
         self.flattening()
+        step2_time = time.time()
+        if print_time:
+            print(f'Flattening time: {step2_time - step1_time:.2f} seconds')
 
         if self.generate_style_embeddings:
             self.style_representing()
+            step3_time = time.time()
+            if print_time:
+                print(f'Style representing time: {step3_time - step2_time:.2f} seconds')
+        else:
+            step3_time = time.time()
 
         self.toponym_assignment()
+        end_time = time.time()
+        if print_time:
+            print(f'Toponym assignment time: {end_time - step3_time:.2f} seconds')
+
+        print(f'Total time: {end_time - start_time:.2f} seconds')
 
         return self.toponyms
     
 if __name__ == '__main__':
-    if False:
+    if True:
         cfg = {
-            'img_path': 'Input/paris2.jpg',
+            'img_path': 'Input/bug.jpg',
             # Save intermediate results
             'save_stacked_detection': False,
             'save_flattened_detection': True,
@@ -228,10 +247,14 @@ if __name__ == '__main__':
 
         toponyms = extractor.run()
 
-    if True:
+    if False:
         # Scan all images in Test1 folder
         import glob
-        img_paths = glob.glob('Test1/*')[15:]
+        img_paths = glob.glob('Input/*')
+
+        img_paths_contains = ['saunders_1874.jpeg', 'vandevelde_1846.jpeg']
+
+        img_paths = [img_path for img_path in img_paths if any([img_path_contains in img_path for img_path_contains in img_paths_contains])]
 
         for img_path in img_paths:
             cfg = {
@@ -248,3 +271,33 @@ if __name__ == '__main__':
             extractor = ToponymExtractor(cfg)
 
             toponyms = extractor.run()
+
+    if False:
+        import glob
+        img_paths = glob.glob('rumsey/val/*')
+
+        from Utils import result_reader as rr
+
+        all_results = []
+
+        for img_path in img_paths:
+            cfg = {
+                'img_path': img_path,
+                # Save intermediate results
+                'save_stacked_detection': False,
+                'save_flattened_detection': True,
+                'save_grouper_graph': True,
+                'save_toponym_detection': True,
+
+                'save_visualization_images': True,
+            }
+
+            extractor = ToponymExtractor(cfg)
+
+            toponyms = extractor.run()
+
+            rumsey_result = rr.to_rumsey_format(toponyms, img_path)
+
+            all_results.append(rumsey_result)
+
+        rr.save_json_nested(all_results, 'RumseyEval/rumsey_results.json')

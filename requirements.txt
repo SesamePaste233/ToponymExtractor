@@ -15,3 +15,4 @@ timm==0.5.4
 tqdm==4.53.0
 bezier==2021.2.12
 pandas==2.0.3
+frechetdist==0.6

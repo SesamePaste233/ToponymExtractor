@@ -74,15 +74,19 @@ def minimize_observation_error_sorting(observations, n):
                 G.add_edge(i, j, weight=pairwise_matrix[i][j])
 
     len_edges = len(G.edges)
+
+    order = list(range(n))
+
     # Attempt topological sorting
     for _ in range(len_edges):
         try:
             order = list(nx.topological_sort(G))
-            break
+            return order
         except nx.NetworkXUnfeasible:
             cycle = nx.find_cycle(G)
             if not cycle:
-                raise Exception("No cycle found, but NetworkXUnfeasible was raised.")
+                print("Warning: No cycle found but topological sort failed.")
+                break
 
             # Find the edge with the least weight in the cycle
             min_weight_edge = min(cycle, key=lambda edge: G.edges[edge]['weight'])
@@ -90,6 +94,7 @@ def minimize_observation_error_sorting(observations, n):
             # Remove the edge with the least weight
             G.remove_edge(*min_weight_edge)
 
+    print("Warning: Topological sort failed. Using default order.")
     return order
 
 def toponym_from_graph_strong_component(results, G, order_observations):
@@ -99,13 +104,20 @@ def toponym_from_graph_strong_component(results, G, order_observations):
     grouped_results = []
     for component in connected_components:
         component = [int(i) for i in component]
-        observations = [ob for ob in order_observations if all([i in component for i in ob])]
+        component_set = set(component)
+
+        # Keep observations that are in the component, drop the rest
+        observations = [ob for ob in order_observations if component_set.issuperset(ob)]
+        observations = [[component.index(i) for i in obs] for obs in observations]
+
+        # Keep observations that have at least two elements in the component, drop the rest
+        #observations = [ob for ob in order_observations if len(component_set.intersection(ob)) >= 2]
+        #observations = [[component.index(i) for i in obs if i in component_set] for obs in observations]
 
         if len(observations) == 0:
             group = [results[i] for i in component]
             grouped_results.append(group)
         else:
-            observations = [[component.index(i) for i in obs] for obs in observations]
             order = minimize_observation_error_sorting(observations, len(component))
             group = [results[component[i]] for i in order]
             grouped_results.append(group)

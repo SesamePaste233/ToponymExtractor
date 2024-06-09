@@ -82,3 +82,37 @@ def extract_toponyms_from_result_groups(results):
         toponyms.append(toponym)
 
     return toponyms
+
+def to_rumsey_format(toponyms, map_rel_path):
+    '''
+    returns {
+        "image": map_rel_path,
+        "groups": [ # Begin a list of phrase groups for the image
+            [ # Begin a list of words for the phrase
+                {"vertices": [[x1, y1], [x2, y2], ..., [xN, yN]], "text": "TEXT1"},
+                ...,
+                {"vertices": [[x1, y1], [x2, y2], ..., [xN, yN]], "text": "TEXT2"}
+            ],
+            ...
+            [ {"vertices": [[x1, y1], [x2, y2], ..., [xN, yN]], "text": "TEXT3}, ... ]
+        ]
+    }
+    '''
+    result = {
+        "image": map_rel_path,
+        "groups": []
+    }
+    for t in toponyms:
+        group = t['group']
+        new_group = []
+        for w in group:
+            polygon_x = w['polygon_x']
+            polygon_y = w['polygon_y']
+            vertices = [[polygon_x[i], polygon_y[i]] for i in range(len(polygon_x))]
+            new_group.append({
+                'vertices': vertices,
+                'text': w['text']
+            })
+        result['groups'].append(new_group)
+
+    return result
