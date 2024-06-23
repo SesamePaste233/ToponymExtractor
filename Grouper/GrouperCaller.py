@@ -223,7 +223,12 @@ class GrouperCaller:
 
         sample['source_bezier_centralized'] = np.array(sample['source_bezier_centralized']) - center
 
-        return self.get_toponym_sequence(sample)
+        dict_ids = self.get_toponym_sequence(sample)
+        
+        included = set()
+        dict_ids = [i for i in dict_ids if i not in included and not included.add(i)]
+
+        return dict_ids
 
 if __name__ == '__main__':
 

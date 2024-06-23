@@ -180,7 +180,7 @@ class ToponymExtractor:
     def toponym_assignment(self):
         self.grouper = GrouperCaller(self.grouper_model_path)
 
-        self.directed_graph, self.order_observations = group_toponyms(self.flattening_results, self.grouper, use_style_embeddings=self.use_style_embeddings_in_grouper)
+        self.directed_graph, self.order_observations = group_toponyms(self.flattening_results, self.grouper, use_style_embeddings=self.use_style_embeddings_in_grouper, batch_size=128)
 
         if self.save_grouper_graph:
             rr.save_toponym_graph(self.directed_graph, self.grouper_graph_path)
@@ -233,9 +233,9 @@ class ToponymExtractor:
 if __name__ == '__main__':
     if True:
         cfg = {
-            'img_path': 'Input/bug.jpg',
+            'img_path': 'Test1/12148_btv1b530633990f1.jpg',
             # Save intermediate results
-            'save_stacked_detection': False,
+            'save_stacked_detection': True,
             'save_flattened_detection': True,
             'save_grouper_graph': True,
             'save_toponym_detection': True,

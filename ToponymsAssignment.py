@@ -1,40 +1,44 @@
-from Grouper.GrouperCaller import *
+from Grouper.GrouperCaller_v1 import *
 import networkx as nx
 from tqdm import tqdm
 
 from Utils import sampler
 
+from Utils import visualizer
+from PIL import Image
+
 def _cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def group_toponyms(results, grouper, sample_count = 15, use_style_embeddings = False):
+def group_toponyms(results, grouper: GrouperCaller, sample_count = 15, use_style_embeddings = False, batch_size = 128):
     if use_style_embeddings:
         print("Using style embeddings")
         
-    G = nx.DiGraph()
-    order_observations = []
+    grid,_,_,_,_ = sampler.naive_grid_generator([r['center'] for r in results], ensure_at_least_k_per_grid=5, epsilon=0.1)
 
+    center_entry_lst = [r for r in results]
+    sampled_indices = []
+    features_lst = []
+    dict_ids_lst = []
     for j in tqdm(range(len(results))):
         center_entry = results[j]
         # Find the closest sample_count points to the center
-        closest_points, closest_indices = sampler.sample(center_entry, results, sample_count)
+        closest_points, closest_indices = sampler.sample(center_entry, results, sample_count, spatial_grids = grid, query_grid=grid[j], grid_search_range=2)
+        #closest_points, closest_indices = sampler.sample2(center_entry, results, sample_count)
+        #vis = visualizer.PolygonVisualizer()
+        #vis.canvas_from_image(Image.open("Input/paris2.jpg"))
+        #vis.draw(closest_points).save(f"Results/paris2/_debug.jpg")
+        features = [np.array(np.concatenate((np.array(point['upper_bezier_pts']), np.array(point['lower_bezier_pts'][::-1])))).flatten() for point in closest_points]
 
-        group_ids = []
-        features = []
-        for i, point in zip(closest_indices, closest_points):
-            point_bezier_pts = np.array(np.concatenate((np.array(point['upper_bezier_pts']), np.array(point['lower_bezier_pts'][::-1]))))
+        sampled_indices.append(closest_indices)
+        features_lst.append(features)
+        #dict_ids_lst.append(grouper.get_toponym_sequence2(features, 0))
 
-            # Flatten the bezier points into a 1D array
-            point_bezier_pts = point_bezier_pts.flatten()
+    dict_ids_lst = grouper.get_toponym_sequence_batch(features_lst, batch_size=batch_size, show_progress=True)
 
-            features.append(point_bezier_pts)
-
-        dict_ids = grouper.get_toponym_sequence2(features, 0)
-
-        # Remove duplicates
-        included = set()
-        dict_ids = [i for i in dict_ids if i not in included and not included.add(i)]
-
+    G = nx.DiGraph()
+    order_observations = []
+    for j, dict_ids, center_entry, closest_indices in zip(range(len(dict_ids_lst)), dict_ids_lst, center_entry_lst, sampled_indices):
         group_ids = [closest_indices[i] for i in dict_ids if i < len(closest_indices)]
 
         if len(group_ids) != 0:

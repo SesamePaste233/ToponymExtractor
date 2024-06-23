@@ -3,7 +3,7 @@ from Utils import sampler
 import numpy as np
 from tqdm import tqdm
 
-def _aggregate_closest_results_iter(results, sample_count = 20, evaluate_overlapping = "any", height_multiplier = 0.3):
+def _aggregate_closest_results_iter(results, grid = None, sample_count = 20, evaluate_overlapping = "any", height_multiplier = 0.3):
     '''
         results: list of entries with keys 'center_bezier_pts', 'center', 'text', 'score', 'avg_height', 'left', 'right'
     '''
@@ -13,7 +13,10 @@ def _aggregate_closest_results_iter(results, sample_count = 20, evaluate_overlap
     multiplier = height_multiplier
 
     # Find the closest sample_count points to the center
-    closest_points, closest_indices = sampler.sample(center_entry, results, sample_count)
+    if grid is not None:
+        closest_points, closest_indices = sampler.sample(center_entry, results, sample_count, spatial_grids = grid, query_grid=grid[0], grid_search_range=1)
+    else:
+        closest_points, closest_indices = sampler.sample(center_entry, results, sample_count)
     
     group = []
     group_ids = []
@@ -40,16 +43,21 @@ def aggregate_closest_results(results, sample_count = 20, evaluate_overlapping =
     ambiguity = []
 
     total = len(results)
-
+    grid,_,_,grid_x,grid_y = sampler.naive_grid_generator([r['center'] for r in results], ensure_at_least_k_per_grid=5, epsilon=0.1)
+    ungrouped_results_grid = grid
     # Sort ungrouped results by distance between 'left' and 'right', descending
-    ungrouped_results.sort(key=lambda x: np.linalg.norm(np.array(x['right']) - np.array(x['left'])), reverse=True)
+    sorted_results = list(zip(ungrouped_results, ungrouped_results_grid))
+    sorted_results.sort(key=lambda x: np.linalg.norm(np.array(x[0]['right']) - np.array(x[0]['left'])), reverse=True)
+
+    ungrouped_results, ungrouped_results_grid = zip(*sorted_results)
 
     with tqdm(total=total) as pbar:
         while len(ungrouped_results) > 0:
-            group, group_ids, ambiguous = _aggregate_closest_results_iter(ungrouped_results, sample_count, evaluate_overlapping=evaluate_overlapping, height_multiplier=height_multiplier)
+            group, group_ids, ambiguous = _aggregate_closest_results_iter(ungrouped_results, ungrouped_results_grid, sample_count=sample_count, evaluate_overlapping=evaluate_overlapping, height_multiplier=height_multiplier)
             grouped_results.append(group)
             ambiguity.append(ambiguous)
             ungrouped_results = [result for i, result in enumerate(ungrouped_results) if i not in group_ids]
+            ungrouped_results_grid = [g for i, g in enumerate(ungrouped_results_grid) if i not in group_ids]
             pbar.update(len(group))
 
     return grouped_results, ambiguity
