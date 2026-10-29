@@ -19,6 +19,7 @@ Results/
 Test1/
 
 Evaluation/
+!WordSpotter/src/wordspotter/evaluation
 
 test.ipynb
 WordSpotter/build

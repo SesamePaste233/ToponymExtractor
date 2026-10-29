@@ -5,18 +5,18 @@ import torch
 from detectron2.data import MetadataCatalog
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.visualizer import ColorMode, Visualizer
-from adet.utils.visualizer import TextVisualizer
+from wordspotter.utils.visualizer import TextVisualizer
 
 
 from detectron2.modeling import build_model
 from detectron2.checkpoint import DetectionCheckpointer
 import detectron2.data.transforms as T
-from adet.data.augmentation import Pad
+from wordspotter.data.augmentation import Pad
 from detectron2.data.detection_utils import convert_PIL_to_numpy
-from adet.config import get_cfg
+from wordspotter.config import get_cfg
 
-from adet.modeling import swin
-from adet.modeling import vitae_v2
+from wordspotter.modeling import swin
+from wordspotter.modeling import vitae_v2
 
 from PIL import Image
 

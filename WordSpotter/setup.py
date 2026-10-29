@@ -13,15 +13,16 @@ assert torch_ver >= [1, 3], "Requires PyTorch >= 1.3"
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "adet", "layers", "csrc")
+    extensions_dir = os.path.join(this_dir, "src", "wordspotter", "layers", "csrc")
 
-    main_source = os.path.join(extensions_dir, "vision.cpp")
-    sources = glob.glob(os.path.join(extensions_dir, "**", "*.cpp"))
-    source_cuda = glob.glob(os.path.join(extensions_dir, "**", "*.cu")) + glob.glob(
-        os.path.join(extensions_dir, "*.cu")
-    )
-
-    sources = [main_source] + sources
+    sources = []
+    
+    sources.append(os.path.join(extensions_dir, "vision.cpp"))
+    sources.append(os.path.join(extensions_dir, "DeformAttn", "cpu", "ms_deform_attn_cpu.cpp"))
+    source_cuda = [
+        os.path.join(extensions_dir, "cuda_version.cu"),
+        os.path.join(extensions_dir, "DeformAttn", "cuda", "ms_deform_attn_cuda.cu"),
+    ]
 
     extension = CppExtension
 
@@ -51,7 +52,7 @@ def get_extensions():
 
     ext_modules = [
         extension(
-            "adet._C",
+            "wordspotter._C",
             sources,
             include_dirs=include_dirs,
             define_macros=define_macros,
@@ -63,14 +64,13 @@ def get_extensions():
 
 
 setup(
-    name="AdelaiDet",
-    version="0.2.0",
-    author="Adelaide Intelligent Machines",
-    url="https://github.com/stanstarks/AdelaiDet",
-    description="AdelaiDet is AIM's research "
-    "platform for instance-level detection tasks based on Detectron2.",
-    packages=find_packages(exclude=("configs", "tests")),
-    python_requires=">=3.6",
+    name="WordSpotter",
+    version="0.0.1",
+    url="https://github.com/maps-as-data/ToponymExtractor",
+    description="Text detections and recognition framework based on AdelaiDet and detectron2. ",
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    python_requires=">=3.9",
     install_requires=[
         "termcolor>=1.1",
         "Pillow>=6.0",
